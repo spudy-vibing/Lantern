@@ -5,58 +5,85 @@ A powerful network toolkit CLI for developers. Get instant insights into your ne
 ## Features
 
 - **Network Interfaces** - List all network interfaces with IP addresses, MAC addresses, and status
-- **Router Info** - View default gateway details
-- **DNS Management** - View DNS servers and flush DNS cache
+- **Router Info** - View default gateway details and MAC address
+- **DNS Management** - View DNS servers, search domains, and flush DNS cache
+- **Wi-Fi Tools** - View connection details, monitor signal strength in real-time, scan for networks
 - **Network Diagnostics** - Comprehensive network summary with connectivity testing
-- **Wi-Fi Information** - View current Wi-Fi connection details (SSID, signal strength, channel)
 - **JSON Output** - All commands support `--json` for scripting and automation
+
+## Requirements
+
+- **Python**: 3.11 or higher
+- **Operating System**: macOS (fully supported), Linux and Windows coming soon
 
 ## Installation
 
-### From PyPI (coming soon)
+### Prerequisites
+
+1. **Check Python version** (must be 3.11+):
+   ```bash
+   python3 --version
+   ```
+
+2. **Install Python 3.11+** if needed:
+   - macOS: `brew install python@3.11`
+   - Or download from [python.org](https://www.python.org/downloads/)
+
+### Option 1: Install from PyPI (Recommended)
 
 ```bash
 pip install lantern-net
 ```
 
-### From Source
+### Option 2: Install from Source
 
 ```bash
-git clone https://github.com/yourusername/lantern.git
-cd lantern
+# Clone the repository
+git clone https://github.com/spudy-vibing/Lantern.git
+cd Lantern
+
+# Create and activate virtual environment (recommended)
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install the package
 pip install -e .
+```
+
+### Verify Installation
+
+```bash
+lantern --version
 ```
 
 ## Quick Start
 
 ```bash
-# Show version
-lantern --version
+# Get a quick overview of your network
+lantern diagnose
 
 # List all network interfaces
 lantern interfaces
 
-# Show router/gateway information
-lantern router info
+# Check your Wi-Fi connection
+lantern wifi info
 
-# Show DNS configuration
-lantern dns info
-
-# Run comprehensive network diagnostics
-lantern diagnose
-
-# Quick diagnostics (skip connectivity test)
-lantern diagnose --quick
+# Monitor Wi-Fi signal strength in real-time
+lantern wifi signal
 ```
 
-## Commands
+## Commands Reference
 
-### `lantern interfaces`
+### Network Interfaces
 
 List all network interfaces with their configuration.
 
 ```bash
-$ lantern interfaces
+lantern interfaces
+```
+
+**Example Output:**
+```
                              Network Interfaces
 ┏━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
 ┃ Name    ┃ Type     ┃ Status ┃ IPv4 Address  ┃ MAC Address       ┃ Default ┃
@@ -69,12 +96,18 @@ $ lantern interfaces
 **Options:**
 - `--json, -j` - Output in JSON format
 
-### `lantern router info`
+---
+
+### Router Information
 
 Show default gateway/router information.
 
 ```bash
-$ lantern router info
+lantern router info
+```
+
+**Example Output:**
+```
 ╭────────────────────────────── Default Gateway ───────────────────────────────╮
 │   IP Address     192.168.1.1                                                 │
 │   Interface      en0                                                         │
@@ -85,104 +118,195 @@ $ lantern router info
 **Options:**
 - `--json, -j` - Output in JSON format
 
-### `lantern dns info`
+---
 
-Show DNS configuration including servers and search domains.
+### DNS Commands
+
+#### View DNS Configuration
 
 ```bash
-$ lantern dns info
+lantern dns info
+```
+
+**Example Output:**
+```
                   DNS Servers
 ┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
 ┃ Address                ┃ Interface ┃ Default ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
-│ 192.168.1.1            │ -         │    ✓    │
+│ 192.168.1.1            │ en0       │    ✓    │
 │ 8.8.8.8                │ -         │         │
 └────────────────────────┴───────────┴─────────┘
 
 Search Domains: local, home
 ```
 
+#### Flush DNS Cache
+
+Clear the local DNS resolver cache to force fresh lookups:
+
+```bash
+lantern dns flush
+```
+
+---
+
+### Wi-Fi Commands
+
+#### View Current Connection
+
+```bash
+lantern wifi info
+```
+
+**Example Output:**
+```
+╭────────────────────────────── Wi-Fi Connection ──────────────────────────────╮
+│   SSID        MyNetwork                                                      │
+│   Signal      -52 dBm (Excellent)                                            │
+│   Channel     36 (5 GHz)                                                     │
+│   TX Rate     867.0 Mbps                                                     │
+│   Security    WPA2 Personal                                                  │
+│   Interface   en0                                                            │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
+#### Monitor Signal Strength
+
+Watch your Wi-Fi signal strength in real-time with a sparkline visualization:
+
+```bash
+lantern wifi signal
+```
+
+**Example Output:**
+```
+Monitoring signal for MyNetwork... Press Ctrl+C to stop.
+
+╭──────────────────────────── Wi-Fi Signal Monitor ────────────────────────────╮
+│ Signal: ▅▆▇▆▅▆▇█▇▆  -51 dBm (Good)                                           │
+│                                                                              │
+│ SSID: MyNetwork  Channel: 36  Avg: -52 dBm  Range: -48/-56 dBm               │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
 **Options:**
-- `--json, -j` - Output in JSON format
+- `--interval, -i` - Sampling interval in seconds (default: 1.0)
+- `--count, -c` - Number of samples before stopping (default: infinite)
 
-### `lantern dns flush`
+#### Scan for Networks
 
-Flush the local DNS cache.
-
-```bash
-$ lantern dns flush
-Flushing DNS cache...
-✓ DNS cache flushed successfully.
-```
-
-### `lantern diagnose`
-
-Run comprehensive network diagnostics.
+Scan for available Wi-Fi networks in range:
 
 ```bash
-$ lantern diagnose
-╭───────────────────────────── Network Interfaces ─────────────────────────────╮
-│ en0  │ wifi  │ 192.168.1.174  │ ●                                            │
-╰──────────────────────────────────────────────────────────────────────────────╯
-
-╭─────────────────────────────────── Wi-Fi ────────────────────────────────────╮
-│  SSID       MyNetwork                                                        │
-│  Signal     -50 dBm (Excellent)                                              │
-│  Channel    36                                                               │
-│  Security   WPA2 Personal                                                    │
-╰──────────────────────────────────────────────────────────────────────────────╯
-
-╭─────────────────────────────────── Router ───────────────────────────────────╮
-│  Gateway    192.168.1.1                                                      │
-│  Interface  en0                                                              │
-╰──────────────────────────────────────────────────────────────────────────────╯
-
-╭─────────────────────────── Internet Connectivity ────────────────────────────╮
-│ ● Connected  Latency: 12.3ms                                                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
+lantern wifi scan --scan
 ```
+
+> **Note:** The `--scan` flag is required for explicit permission. On macOS Sequoia and later, scanning may not be available as Apple removed the airport utility.
+
+---
+
+### Network Diagnostics
+
+Run comprehensive network diagnostics in one command:
+
+```bash
+lantern diagnose
+```
+
+This shows:
+- Active network interfaces
+- Current Wi-Fi connection details
+- Router/gateway information
+- DNS configuration
+- Internet connectivity status with latency
 
 **Options:**
 - `--json, -j` - Output in JSON format
 - `--quick, -q` - Skip connectivity test for faster results
 
-## JSON Output
+---
 
-All commands support JSON output for scripting and automation:
+## JSON Output for Scripting
+
+All commands support `--json` output for easy integration with scripts and other tools:
 
 ```bash
-$ lantern interfaces --json
-[
-  {
-    "name": "en0",
-    "type": "wifi",
-    "status": "up",
-    "ipv4_address": "192.168.1.174",
-    "mac_address": "80:a9:97:33:cb:ed",
-    "is_default": true
-  }
-]
+# Get interface data as JSON
+lantern interfaces --json
+
+# Parse with jq
+lantern interfaces --json | jq '.[] | select(.is_default == true)'
+
+# Use in shell scripts
+if lantern diagnose --json | jq -e '.connectivity.success' > /dev/null; then
+    echo "Internet is connected"
+fi
 ```
 
-## Requirements
+**Example JSON Output:**
+```json
+{
+  "connected": true,
+  "ssid": "MyNetwork",
+  "bssid": "58:96:71:f2:8f:6c",
+  "channel": 36,
+  "rssi": -52,
+  "noise": -89,
+  "signal_quality": 96,
+  "tx_rate": 867.0,
+  "security": "WPA2 Personal",
+  "interface": "en0"
+}
+```
 
-- **Python**: 3.11 or higher
-- **Operating System**:
-  - macOS (fully supported)
-  - Linux (coming soon)
-  - Windows (coming soon)
+---
+
+## Common Use Cases
+
+### Check if you're connected to the internet
+```bash
+lantern diagnose --quick
+```
+
+### Troubleshoot DNS issues
+```bash
+# Check current DNS servers
+lantern dns info
+
+# Flush DNS cache if having resolution issues
+lantern dns flush
+```
+
+### Find your local IP address
+```bash
+lantern interfaces --json | jq -r '.[] | select(.is_default) | .ipv4_address'
+```
+
+### Monitor Wi-Fi stability
+```bash
+# Monitor for 60 seconds
+lantern wifi signal --count 60
+```
+
+### Get router MAC address (for Wake-on-LAN setup)
+```bash
+lantern router info --json | jq -r '.mac_address'
+```
+
+---
 
 ## Development
 
-### Setup
+### Setup Development Environment
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/lantern.git
-cd lantern
+git clone https://github.com/spudy-vibing/Lantern.git
+cd Lantern
 
 # Create virtual environment
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 
 # Install with dev dependencies
@@ -195,11 +319,11 @@ pip install -e ".[dev]"
 # Run all tests
 pytest
 
-# Run with coverage
+# Run with coverage report
 pytest --cov=lantern --cov-report=term-missing
 
 # Run specific test file
-pytest tests/unit/test_version.py -v
+pytest tests/unit/test_models.py -v
 ```
 
 ### Code Quality
@@ -208,17 +332,22 @@ pytest tests/unit/test_version.py -v
 # Run linter
 ruff check src tests
 
-# Run formatter
+# Auto-fix linting issues
+ruff check src tests --fix
+
+# Format code
 ruff format src tests
 
-# Run type checker
+# Type checking
 mypy src/lantern
 ```
 
-### Project Structure
+---
+
+## Project Structure
 
 ```
-lantern/
+Lantern/
 ├── src/lantern/
 │   ├── __init__.py          # Package version
 │   ├── cli.py               # Main CLI application
@@ -226,7 +355,7 @@ lantern/
 │   ├── exceptions.py        # Custom exceptions
 │   ├── core/
 │   │   ├── context.py       # Runtime context
-│   │   ├── executor.py      # Command execution
+│   │   ├── executor.py      # Async command execution
 │   │   └── output.py        # Output formatting
 │   ├── models/
 │   │   └── network.py       # Data models
@@ -234,46 +363,60 @@ lantern/
 │   │   ├── base.py          # Platform adapter interface
 │   │   ├── factory.py       # Platform detection
 │   │   ├── macos.py         # macOS implementation
-│   │   ├── linux.py         # Linux implementation (stub)
-│   │   └── windows.py       # Windows implementation (stub)
+│   │   ├── linux.py         # Linux (stub)
+│   │   └── windows.py       # Windows (stub)
 │   └── tools/
 │       ├── interfaces.py    # interfaces command
 │       ├── router.py        # router commands
 │       ├── dns.py           # dns commands
-│       └── diagnose.py      # diagnose command
+│       ├── diagnose.py      # diagnose command
+│       └── wifi/            # Wi-Fi commands
 ├── tests/
-│   ├── unit/
-│   └── integration/
+│   ├── fixtures/            # Test data
+│   ├── unit/                # Unit tests
+│   └── integration/         # CLI integration tests
 ├── pyproject.toml
 └── README.md
 ```
 
+---
+
 ## Roadmap
 
-- [x] Phase 1: Foundation (v0.1.0)
-  - [x] Project setup and CLI skeleton
-  - [x] Core infrastructure
-  - [x] Platform abstraction (macOS)
-  - [x] Core commands (interfaces, router, dns, diagnose)
-  - [ ] Wi-Fi commands
-  - [ ] Testing infrastructure
-  - [ ] Documentation
+### Phase 1: Foundation (v0.1.0) ✅
+- [x] Project setup and CLI skeleton
+- [x] Core infrastructure (async executor, output formatting)
+- [x] Platform abstraction (macOS fully implemented)
+- [x] Core commands (interfaces, router, dns, diagnose)
+- [x] Wi-Fi commands (info, signal, scan)
+- [x] Testing infrastructure (96 tests, 79% coverage)
+- [x] Documentation
 
-- [ ] Phase 2: Delight & Virality (v1.1)
-  - [ ] QR code generation for Wi-Fi sharing
-  - [ ] File transfer with QR codes
-  - [ ] Visual ping (sonar)
-  - [ ] Network scanning
+### Phase 2: Delight & Virality (v1.1)
+- [ ] QR code generation for Wi-Fi sharing
+- [ ] File transfer with QR codes
+- [ ] Visual ping (sonar)
+- [ ] Network device scanning
 
-- [ ] Phase 3: LAN Mastery (v2.0)
-  - [ ] Device registry
-  - [ ] SSH tools
-  - [ ] Wake-on-LAN
-  - [ ] Smart plug integration
+### Phase 3: LAN Mastery (v2.0)
+- [ ] Device registry and nicknames
+- [ ] SSH connection tools
+- [ ] Wake-on-LAN
+- [ ] Smart plug integration
+
+---
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
 
 ## License
 
