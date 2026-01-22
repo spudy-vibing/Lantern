@@ -77,4 +77,16 @@ addopts = "-ra -q --cov=lantern --cov-report=term-missing"
 
 [tool.coverage.run]
 source = ["src/lantern"]
+omit = [
+    "src/lantern/platforms/linux.py",
+    "src/lantern/platforms/windows.py",
+    "src/lantern/__main__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
 branch = true

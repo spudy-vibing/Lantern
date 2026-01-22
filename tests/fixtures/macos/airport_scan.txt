@@ -1,0 +1,5 @@
+                            SSID BSSID             RSSI CHANNEL HT CC SECURITY (auth/unicast/group)
+                   MyHomeNetwork 58:96:71:f2:8f:6c -52       36 Y  -- WPA2(PSK/AES/AES)
+                    NeighborWifi a4:b1:c1:d2:e3:f4 -68      11 Y  US WPA2(PSK/AES/AES)
+                          Guests 12:34:56:78:9a:bc -75       6 Y  US WPA2(PSK/AES/AES)
+                                 aa:bb:cc:dd:ee:ff -80       1 Y  -- WPA2(PSK/AES/AES)

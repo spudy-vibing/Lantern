@@ -1,0 +1,18 @@
+Hardware Port: Wi-Fi
+Device: en0
+Ethernet Address: 80:a9:97:33:cb:ed
+
+Hardware Port: USB 10/100/1000 LAN
+Device: en6
+Ethernet Address: 48:65:ee:1b:a7:bb
+
+Hardware Port: Thunderbolt Bridge
+Device: bridge0
+Ethernet Address: 36:c2:f0:66:c2:40
+
+Hardware Port: Thunderbolt 1
+Device: en1
+Ethernet Address: 36:c2:f0:66:c2:40
+
+VLAN Configurations
+===================
