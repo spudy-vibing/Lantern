@@ -1,14 +1,16 @@
 # Lantern
 
-A powerful network toolkit CLI for developers. Get instant insights into your network configuration, diagnose connectivity issues, and manage network settings - all from the command line.
+A powerful network toolkit CLI for developers. Get instant insights into your network configuration, diagnose connectivity issues, share files, and manage network settings - all from the command line.
 
 ## Features
 
-- **Network Interfaces** - List all network interfaces with IP addresses, MAC addresses, and status
-- **Router Info** - View default gateway details and MAC address
-- **DNS Management** - View DNS servers, search domains, and flush DNS cache
-- **Wi-Fi Tools** - View connection details, monitor signal strength in real-time, scan for networks
 - **Network Diagnostics** - Comprehensive network summary with connectivity testing
+- **Network Interfaces** - List all interfaces with IP addresses, MAC addresses, and status
+- **Wi-Fi Tools** - View connection details, monitor signal strength, scan for networks
+- **QR Code Generation** - Generate QR codes for URLs, text, and Wi-Fi sharing
+- **File Transfer** - Share files and directories via HTTP with QR codes
+- **Network Utilities** - Public IP lookup, port checking, visual ping
+- **Device Discovery** - Scan your network for connected devices with vendor identification
 - **JSON Output** - All commands support `--json` for scripting and automation
 
 ## Requirements
@@ -62,24 +64,198 @@ lantern --version
 # Get a quick overview of your network
 lantern diagnose
 
-# List all network interfaces
-lantern interfaces
+# Find your public IP address
+lantern whoami
 
-# Check your Wi-Fi connection
-lantern wifi info
+# Share a file with anyone on your network
+lantern drop myfile.zip
 
-# Monitor Wi-Fi signal strength in real-time
-lantern wifi signal
+# Share your Wi-Fi password via QR code
+lantern share
+
+# Scan for devices on your network
+lantern scan
+
+# Visual ping with live sparkline
+lantern sonar google.com
 ```
 
 ## Commands Reference
 
+### QR Code Generation
+
+#### Generate QR Code
+
+Create a QR code from any text or URL:
+
+```bash
+lantern qr "https://example.com"
+lantern qr "Hello World" --invert
+```
+
+**Options:**
+- `--invert, -i` - Invert colors (white on black)
+- `--border, -b` - Border size (default: 1)
+
+---
+
+#### Share Wi-Fi via QR
+
+Generate a QR code to share your Wi-Fi network:
+
+```bash
+lantern share                          # Share current network
+lantern share --show-password          # Show password in output
+lantern share -s "NetworkName" -p "password"  # Explicit credentials
+```
+
+**Options:**
+- `--ssid, -s` - Network name (defaults to current)
+- `--password, -p` - Password (retrieved from Keychain if not provided)
+- `--show-password` - Display password below QR code
+- `--invert, -i` - Invert colors
+
+---
+
+### File Transfer
+
+#### One-Shot File Share
+
+Share a file via HTTP with a QR code for easy mobile access:
+
+```bash
+lantern drop myfile.zip
+lantern drop photo.jpg --port 8080
+lantern drop document.pdf --timeout 60
+```
+
+The server automatically stops after one download.
+
+**Options:**
+- `--port, -p` - Port to serve on (default: auto)
+- `--timeout, -t` - Timeout in seconds (default: 300)
+- `--no-qr` - Don't display QR code
+
+---
+
+#### Directory Server
+
+Serve a directory for browsing from any device:
+
+```bash
+lantern serve                    # Serve current directory
+lantern serve ~/Downloads        # Serve specific directory
+lantern serve . --port 9000      # Custom port
+```
+
+**Options:**
+- `--port, -p` - Port to serve on (default: auto)
+- `--no-qr` - Don't display QR code
+
+---
+
+### Network Utilities
+
+#### Public IP & Location
+
+Show your public IP address and geolocation:
+
+```bash
+lantern whoami              # Full info with panel
+lantern whoami --short      # Just the IP address
+lantern whoami --json       # JSON output
+```
+
+**Example Output:**
+```
+╭───────────────────────────────── Public IP ──────────────────────────────────╮
+│  74.105.81.242                                                               │
+│                                                                              │
+│  Location:  New York, New York, US                                           │
+│  Provider:  AS701 Verizon Business                                           │
+│  Timezone:  America/New_York                                                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
+---
+
+#### Port Checker
+
+Check if a port is open:
+
+```bash
+lantern port 8080                # Check localhost:8080
+lantern port 22 --host server    # Check server:22
+lantern port 80 --external       # Check if port is internet-accessible
+```
+
+**Options:**
+- `--host, -h` - Host to check (default: localhost)
+- `--external, -e` - Check if accessible from internet
+- `--json, -j` - JSON output
+
+---
+
+#### Visual Ping (Sonar)
+
+Live ping visualization with sparkline display:
+
+```bash
+lantern sonar google.com           # Continuous ping
+lantern sonar 8.8.8.8 -c 30        # 30 pings then stop
+lantern sonar router -i 0.5        # Ping every 0.5 seconds
+```
+
+**Example Output:**
+```
+SONAR google.com
+
+╭────────────────────────── google.com ───────────────────────────╮
+│  ▂▃▂▃▂▃▂▃▂▃▂▃▂▃▂▃▂▃▂▃  12.3ms                                   │
+│                                                                  │
+│  min 10.2ms  avg 12.1ms  max 14.8ms                              │
+╰──────────────────────────────────────────────────────────────────╯
+```
+
+**Options:**
+- `--count, -c` - Number of pings (default: unlimited)
+- `--interval, -i` - Interval between pings (default: 1.0s)
+
+---
+
+### Network Discovery
+
+#### Scan Network
+
+Discover devices on your local network:
+
+```bash
+lantern scan              # Show all devices
+lantern scan --json       # JSON output for scripting
+```
+
+**Example Output:**
+```
+                        Network Devices (8 found)
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━┓
+┃ IP Address    ┃ MAC Address       ┃ Vendor  ┃ Hostname      ┃   ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━┩
+│ 192.168.1.1   │ 58:96:71:f2:8f:6c │ -       │ router.local  │ ⬤ │
+│ 192.168.1.42  │ 3c:22:fb:12:34:56 │ Apple   │ macbook       │   │
+│ 192.168.1.100 │ b8:27:eb:aa:bb:cc │ Rasp Pi │ raspberrypi   │   │
+└───────────────┴───────────────────┴─────────┴───────────────┴───┘
+⬤ = Gateway/Router
+```
+
+---
+
 ### Network Interfaces
 
-List all network interfaces with their configuration.
+List all network interfaces with their configuration:
 
 ```bash
 lantern interfaces
+lantern interfaces --json
 ```
 
 **Example Output:**
@@ -93,30 +269,16 @@ lantern interfaces
 └─────────┴──────────┴────────┴───────────────┴───────────────────┴─────────┘
 ```
 
-**Options:**
-- `--json, -j` - Output in JSON format
-
 ---
 
 ### Router Information
 
-Show default gateway/router information.
+Show default gateway/router information:
 
 ```bash
 lantern router info
+lantern router info --json
 ```
-
-**Example Output:**
-```
-╭────────────────────────────── Default Gateway ───────────────────────────────╮
-│   IP Address     192.168.1.1                                                 │
-│   Interface      en0                                                         │
-│   MAC Address    58:96:71:f2:8f:6c                                           │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
-**Options:**
-- `--json, -j` - Output in JSON format
 
 ---
 
@@ -128,22 +290,7 @@ lantern router info
 lantern dns info
 ```
 
-**Example Output:**
-```
-                  DNS Servers
-┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
-┃ Address                ┃ Interface ┃ Default ┃
-┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
-│ 192.168.1.1            │ en0       │    ✓    │
-│ 8.8.8.8                │ -         │         │
-└────────────────────────┴───────────┴─────────┘
-
-Search Domains: local, home
-```
-
 #### Flush DNS Cache
-
-Clear the local DNS resolver cache to force fresh lookups:
 
 ```bash
 lantern dns flush
@@ -159,139 +306,84 @@ lantern dns flush
 lantern wifi info
 ```
 
-**Example Output:**
-```
-╭────────────────────────────── Wi-Fi Connection ──────────────────────────────╮
-│   SSID        MyNetwork                                                      │
-│   Signal      -52 dBm (Excellent)                                            │
-│   Channel     36 (5 GHz)                                                     │
-│   TX Rate     867.0 Mbps                                                     │
-│   Security    WPA2 Personal                                                  │
-│   Interface   en0                                                            │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
 #### Monitor Signal Strength
-
-Watch your Wi-Fi signal strength in real-time with a sparkline visualization:
 
 ```bash
 lantern wifi signal
+lantern wifi signal --count 60    # Monitor for 60 samples
 ```
-
-**Example Output:**
-```
-Monitoring signal for MyNetwork... Press Ctrl+C to stop.
-
-╭──────────────────────────── Wi-Fi Signal Monitor ────────────────────────────╮
-│ Signal: ▅▆▇▆▅▆▇█▇▆  -51 dBm (Good)                                           │
-│                                                                              │
-│ SSID: MyNetwork  Channel: 36  Avg: -52 dBm  Range: -48/-56 dBm               │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
-**Options:**
-- `--interval, -i` - Sampling interval in seconds (default: 1.0)
-- `--count, -c` - Number of samples before stopping (default: infinite)
 
 #### Scan for Networks
-
-Scan for available Wi-Fi networks in range:
 
 ```bash
 lantern wifi scan --scan
 ```
 
-> **Note:** The `--scan` flag is required for explicit permission. On macOS Sequoia and later, scanning may not be available as Apple removed the airport utility.
-
 ---
 
 ### Network Diagnostics
 
-Run comprehensive network diagnostics in one command:
+Run comprehensive network diagnostics:
 
 ```bash
 lantern diagnose
+lantern diagnose --quick    # Skip connectivity test
+lantern diagnose --json     # JSON output
 ```
-
-This shows:
-- Active network interfaces
-- Current Wi-Fi connection details
-- Router/gateway information
-- DNS configuration
-- Internet connectivity status with latency
-
-**Options:**
-- `--json, -j` - Output in JSON format
-- `--quick, -q` - Skip connectivity test for faster results
 
 ---
 
 ## JSON Output for Scripting
 
-All commands support `--json` output for easy integration with scripts and other tools:
+All commands support `--json` output for easy integration:
 
 ```bash
-# Get interface data as JSON
-lantern interfaces --json
+# Get public IP as JSON
+lantern whoami --json | jq '.ip'
 
-# Parse with jq
-lantern interfaces --json | jq '.[] | select(.is_default == true)'
+# Get all devices as JSON
+lantern scan --json | jq '.[] | select(.vendor == "Apple")'
 
-# Use in shell scripts
+# Check if connected to internet
 if lantern diagnose --json | jq -e '.connectivity.success' > /dev/null; then
     echo "Internet is connected"
 fi
-```
-
-**Example JSON Output:**
-```json
-{
-  "connected": true,
-  "ssid": "MyNetwork",
-  "bssid": "58:96:71:f2:8f:6c",
-  "channel": 36,
-  "rssi": -52,
-  "noise": -89,
-  "signal_quality": 96,
-  "tx_rate": 867.0,
-  "security": "WPA2 Personal",
-  "interface": "en0"
-}
 ```
 
 ---
 
 ## Common Use Cases
 
-### Check if you're connected to the internet
+### Share a file with someone on your network
 ```bash
-lantern diagnose --quick
+lantern drop presentation.pdf
+# Scan the QR code from your phone to download
 ```
 
-### Troubleshoot DNS issues
+### Share Wi-Fi with a guest
 ```bash
-# Check current DNS servers
-lantern dns info
-
-# Flush DNS cache if having resolution issues
-lantern dns flush
+lantern share --show-password
+# Guest scans QR code to connect automatically
 ```
 
-### Find your local IP address
+### Monitor connection stability
 ```bash
-lantern interfaces --json | jq -r '.[] | select(.is_default) | .ipv4_address'
+lantern sonar 8.8.8.8 -c 100
 ```
 
-### Monitor Wi-Fi stability
+### Find all devices on your network
 ```bash
-# Monitor for 60 seconds
-lantern wifi signal --count 60
+lantern scan
 ```
 
-### Get router MAC address (for Wake-on-LAN setup)
+### Check if your server port is accessible
 ```bash
-lantern router info --json | jq -r '.mac_address'
+lantern port 443 --external
+```
+
+### Get your public IP for remote access setup
+```bash
+lantern whoami --short
 ```
 
 ---
@@ -301,45 +393,27 @@ lantern router info --json | jq -r '.mac_address'
 ### Setup Development Environment
 
 ```bash
-# Clone the repository
 git clone https://github.com/spudy-vibing/Lantern.git
 cd Lantern
-
-# Create virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
-
-# Install with dev dependencies
 pip install -e ".[dev]"
 ```
 
 ### Running Tests
 
 ```bash
-# Run all tests
-pytest
-
-# Run with coverage report
-pytest --cov=lantern --cov-report=term-missing
-
-# Run specific test file
-pytest tests/unit/test_models.py -v
+pytest                                    # Run all tests
+pytest --cov=lantern --cov-report=html   # With coverage
+pytest tests/unit/test_qr.py -v          # Specific test
 ```
 
 ### Code Quality
 
 ```bash
-# Run linter
-ruff check src tests
-
-# Auto-fix linting issues
-ruff check src tests --fix
-
-# Format code
-ruff format src tests
-
-# Type checking
-mypy src/lantern
+ruff check src tests        # Linting
+ruff format src tests       # Formatting
+mypy src/lantern            # Type checking
 ```
 
 ---
@@ -349,32 +423,24 @@ mypy src/lantern
 ```
 Lantern/
 ├── src/lantern/
-│   ├── __init__.py          # Package version
 │   ├── cli.py               # Main CLI application
-│   ├── constants.py         # App-wide constants
-│   ├── exceptions.py        # Custom exceptions
-│   ├── core/
-│   │   ├── context.py       # Runtime context
-│   │   ├── executor.py      # Async command execution
-│   │   └── output.py        # Output formatting
-│   ├── models/
-│   │   └── network.py       # Data models
-│   ├── platforms/
-│   │   ├── base.py          # Platform adapter interface
-│   │   ├── factory.py       # Platform detection
-│   │   ├── macos.py         # macOS implementation
-│   │   ├── linux.py         # Linux (stub)
-│   │   └── windows.py       # Windows (stub)
-│   └── tools/
-│       ├── interfaces.py    # interfaces command
-│       ├── router.py        # router commands
-│       ├── dns.py           # dns commands
-│       ├── diagnose.py      # diagnose command
-│       └── wifi/            # Wi-Fi commands
+│   ├── core/                # Runtime context, executor, output
+│   ├── models/              # Data models
+│   ├── platforms/           # Platform adapters (macOS, Linux, Windows)
+│   ├── services/            # Reusable services
+│   │   ├── qr.py            # QR code generation
+│   │   ├── http_server.py   # File server
+│   │   └── oui.py           # MAC vendor lookup
+│   └── tools/               # CLI commands
+│       ├── qr.py, share.py       # QR commands
+│       ├── drop.py, serve.py     # File transfer
+│       ├── whoami.py, port.py    # Network utilities
+│       ├── sonar.py, scan.py     # Monitoring & discovery
+│       ├── interfaces.py         # Network interfaces
+│       ├── router.py, dns.py     # Router & DNS
+│       ├── diagnose.py           # Diagnostics
+│       └── wifi/                 # Wi-Fi commands
 ├── tests/
-│   ├── fixtures/            # Test data
-│   ├── unit/                # Unit tests
-│   └── integration/         # CLI integration tests
 ├── pyproject.toml
 └── README.md
 ```
@@ -384,25 +450,35 @@ Lantern/
 ## Roadmap
 
 ### Phase 1: Foundation (v0.1.0) ✅
-- [x] Project setup and CLI skeleton
-- [x] Core infrastructure (async executor, output formatting)
-- [x] Platform abstraction (macOS fully implemented)
+- [x] Core infrastructure and CLI skeleton
+- [x] Platform abstraction (macOS)
 - [x] Core commands (interfaces, router, dns, diagnose)
 - [x] Wi-Fi commands (info, signal, scan)
-- [x] Testing infrastructure (96 tests, 79% coverage)
-- [x] Documentation
+- [x] Testing infrastructure
 
-### Phase 2: Delight & Virality (v1.1)
-- [ ] QR code generation for Wi-Fi sharing
-- [ ] File transfer with QR codes
-- [ ] Visual ping (sonar)
-- [ ] Network device scanning
+### Phase 2: Delight & Virality (v0.2.0) ✅
+- [x] QR code generation (`qr`, `share`)
+- [x] File transfer (`drop`, `serve`)
+- [x] Network utilities (`whoami`, `port`)
+- [x] Visual ping (`sonar`)
+- [x] Network scanning (`scan`)
 
-### Phase 3: LAN Mastery (v2.0)
+### Phase 3: LAN Mastery (v0.3.0)
+- [ ] Configuration system
 - [ ] Device registry and nicknames
 - [ ] SSH connection tools
 - [ ] Wake-on-LAN
 - [ ] Smart plug integration
+
+### Phase 4: Observability (v0.4.0)
+- [ ] Network event watcher
+- [ ] Bandwidth monitoring
+- [ ] TUI dashboard
+
+### Phase 5: Pro Tools (v0.5.0)
+- [ ] Advanced diagnostics (traceroute, SSL checker)
+- [ ] Developer tools (request bin, hosts manager)
+- [ ] Plugin SDK
 
 ---
 
