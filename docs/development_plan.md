@@ -114,6 +114,40 @@ Lantern is a developer-focused CLI tool for local network diagnostics, device ma
 - [ ] `lantern shares list` - Discover SMB/AFP/NFS shares
 - [ ] `lantern shares add/mount` - Save and mount shares
 
+### Milestone 3.8: Universal Device Control System
+**Goal**: Provide a unified interface to discover and control any networked device (TVs, speakers, lights, cameras, etc.)
+
+#### Core Architecture
+- [ ] Base classes: `ControllableDevice`, `Capability`, `Parameter`
+- [ ] Multi-protocol discovery engine (UPnP/SSDP, mDNS, proprietary APIs)
+- [ ] Protocol adapters: UPnP/DLNA, REST, WebSocket
+- [ ] Device-specific adapters: Bose, Sonos, Roku, LG TV, Samsung TV
+
+#### CLI Commands
+- [ ] `lantern control discover` - Find all controllable devices on network
+- [ ] `lantern control list` - Show discovered/saved controllable devices
+- [ ] `lantern control <device>` - Show device info and available commands
+- [ ] `lantern control <device> commands` - List all available commands
+- [ ] `lantern control <device> <action> [args]` - Execute a command
+- [ ] `lantern control <device> status` - Show current device state
+
+#### Device Capabilities
+Each device exposes capabilities (e.g., `volume`, `power`, `playback`) with:
+- Actions: `set`, `get`, `up`, `down`, `toggle`
+- Parameters with types, ranges, and validation
+- State tracking and caching
+
+#### Supported Protocols
+- **UPnP/DLNA**: Bose, Sonos, generic media renderers
+- **REST API**: Roku, modern smart TVs
+- **WebSocket**: LG WebOS, Samsung Tizen
+- **Proprietary**: Kasa smart plugs (existing integration)
+
+#### Extensibility
+- Adapter base class for adding new device types
+- Auto-detection of device protocols
+- Plugin architecture for community adapters
+
 ---
 
 ## Phase 4: Observability & Monitoring (V2.1)

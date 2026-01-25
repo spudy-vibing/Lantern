@@ -26,6 +26,7 @@ def register_all_tools(app: typer.Typer) -> None:
     """Register all discovered tools with the main app."""
     # Import all tool modules to trigger registration
     from lantern.tools import (  # noqa: F401
+        control,
         devices,
         diagnose,
         dns,
