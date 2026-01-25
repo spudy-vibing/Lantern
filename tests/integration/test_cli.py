@@ -178,6 +178,130 @@ class TestVersionCommand:
         assert "0.1.0" in result.stdout or "lantern" in result.stdout.lower()
 
 
+class TestQrCommand:
+    """Tests for the qr command."""
+
+    def test_qr_help(self) -> None:
+        """Test qr --help."""
+        result = runner.invoke(app, ["qr", "--help"])
+        assert result.exit_code == 0
+        assert "text" in result.stdout.lower() or "url" in result.stdout.lower()
+
+    def test_qr_basic(self) -> None:
+        """Test basic QR code generation."""
+        result = runner.invoke(app, ["qr", "hello"])
+        assert result.exit_code == 0
+        assert "QR Code" in result.stdout
+        # Should contain block characters
+        assert "█" in result.stdout or "▀" in result.stdout
+
+    def test_qr_url(self) -> None:
+        """Test QR code for URL."""
+        result = runner.invoke(app, ["qr", "https://example.com"])
+        assert result.exit_code == 0
+        assert "example.com" in result.stdout
+
+    def test_qr_invert(self) -> None:
+        """Test inverted QR code."""
+        result = runner.invoke(app, ["qr", "test", "--invert"])
+        assert result.exit_code == 0
+        assert "QR Code" in result.stdout
+
+
+class TestWhoamiCommand:
+    """Tests for the whoami command."""
+
+    def test_whoami_help(self) -> None:
+        """Test whoami --help."""
+        result = runner.invoke(app, ["whoami", "--help"])
+        assert result.exit_code == 0
+        assert "ip" in result.stdout.lower()
+        assert "location" in result.stdout.lower()
+
+
+class TestPortCommand:
+    """Tests for the port command."""
+
+    def test_port_help(self) -> None:
+        """Test port --help."""
+        result = runner.invoke(app, ["port", "--help"])
+        assert result.exit_code == 0
+        assert "port" in result.stdout.lower()
+
+    def test_port_invalid_range(self) -> None:
+        """Test port with invalid port number."""
+        result = runner.invoke(app, ["port", "99999"])
+        assert result.exit_code != 0
+
+
+class TestDropCommand:
+    """Tests for the drop command."""
+
+    def test_drop_help(self) -> None:
+        """Test drop --help."""
+        result = runner.invoke(app, ["drop", "--help"])
+        assert result.exit_code == 0
+        assert "file" in result.stdout.lower()
+        assert "http" in result.stdout.lower()
+
+    def test_drop_file_not_found(self) -> None:
+        """Test drop with non-existent file."""
+        result = runner.invoke(app, ["drop", "/nonexistent/file.txt"])
+        assert result.exit_code != 0
+
+
+class TestServeCommand:
+    """Tests for the serve command."""
+
+    def test_serve_help(self) -> None:
+        """Test serve --help."""
+        result = runner.invoke(app, ["serve", "--help"])
+        assert result.exit_code == 0
+        assert "directory" in result.stdout.lower()
+        assert "http" in result.stdout.lower()
+
+    def test_serve_dir_not_found(self) -> None:
+        """Test serve with non-existent directory."""
+        result = runner.invoke(app, ["serve", "/nonexistent/dir"])
+        assert result.exit_code != 0
+
+
+class TestShareCommand:
+    """Tests for the share command."""
+
+    def test_share_help(self) -> None:
+        """Test share --help."""
+        result = runner.invoke(app, ["share", "--help"])
+        assert result.exit_code == 0
+        assert "wi-fi" in result.stdout.lower() or "wifi" in result.stdout.lower()
+        assert "qr" in result.stdout.lower()
+
+    def test_share_with_ssid_and_password(self) -> None:
+        """Test share with explicit SSID and password."""
+        result = runner.invoke(app, ["share", "--ssid", "TestNet", "--password", "testpass"])
+        assert result.exit_code == 0
+        assert "Wi-Fi" in result.stdout
+        assert "TestNet" in result.stdout
+        # Should contain QR code characters
+        assert "█" in result.stdout or "▀" in result.stdout
+
+    def test_share_show_password(self) -> None:
+        """Test share with --show-password."""
+        result = runner.invoke(
+            app, ["share", "--ssid", "TestNet", "--password", "secret123", "--show-password"]
+        )
+        assert result.exit_code == 0
+        assert "secret123" in result.stdout
+
+    def test_share_invert(self) -> None:
+        """Test share with inverted colors."""
+        result = runner.invoke(
+            app, ["share", "--ssid", "TestNet", "--password", "pass", "--invert"]
+        )
+        assert result.exit_code == 0
+        assert "TestNet" in result.stdout
+
+
 class TestMainHelp:
     """Tests for main app help."""
 
@@ -190,3 +314,9 @@ class TestMainHelp:
         assert "dns" in result.stdout
         assert "wifi" in result.stdout
         assert "diagnose" in result.stdout
+        assert "qr" in result.stdout
+        assert "share" in result.stdout
+        assert "drop" in result.stdout
+        assert "serve" in result.stdout
+        assert "whoami" in result.stdout
+        assert "port" in result.stdout

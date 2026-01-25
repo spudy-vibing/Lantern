@@ -560,15 +560,34 @@ class MacOSAdapter(PlatformAdapter):
         return result.success
 
     async def get_wifi_password(self, ssid: str) -> str | None:
-        """Get saved Wi-Fi password from Keychain."""
+        """Get saved Wi-Fi password from Keychain.
+
+        Wi-Fi passwords are stored in the System keychain with the SSID
+        as both the account name and label.
+        """
+        # Try System keychain first (where Wi-Fi passwords are typically stored)
         result = await executor.run(
             "security",
             "find-generic-password",
             "-D", "AirPort network password",
-            "-s", ssid,
+            "-a", ssid,
+            "-w",
+            "/Library/Keychains/System.keychain",
+            check=False,
+        )
+        if result.success and result.stdout.strip():
+            return result.stdout.strip()
+
+        # Fall back to login keychain
+        result = await executor.run(
+            "security",
+            "find-generic-password",
+            "-D", "AirPort network password",
+            "-a", ssid,
             "-w",
             check=False,
         )
-        if result.success:
+        if result.success and result.stdout.strip():
             return result.stdout.strip()
+
         return None

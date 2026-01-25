@@ -25,8 +25,21 @@ def register_tool(func: Callable[[typer.Typer], None]) -> Callable[[typer.Typer]
 def register_all_tools(app: typer.Typer) -> None:
     """Register all discovered tools with the main app."""
     # Import all tool modules to trigger registration
-    from lantern.tools import diagnose, dns, interfaces, router  # noqa: F401
-    from lantern.tools import wifi  # noqa: F401
+    from lantern.tools import (  # noqa: F401
+        diagnose,
+        dns,
+        drop,
+        interfaces,
+        port,
+        qr,
+        router,
+        scan,
+        serve,
+        share,
+        sonar,
+        whoami,
+        wifi,
+    )
 
     for register_func in _tool_registrations:
         register_func(app)
