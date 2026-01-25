@@ -48,6 +48,39 @@ def _get_device(name_or_ip: str) -> ControllableDevice | None:
     return _device_cache.get(key) or _device_cache.get(name_or_ip)
 
 
+def _get_or_discover_device(name_or_ip: str) -> ControllableDevice | None:
+    """Get a device from cache, or discover it by IP if it looks like an IP address."""
+    # First check cache
+    device = _get_device(name_or_ip)
+    if device:
+        return device
+
+    # If it looks like an IP address, try to discover it directly
+    import re
+    ip_pattern = r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"
+    if re.match(ip_pattern, name_or_ip):
+        # Try to discover this specific device
+        from lantern.services.control.discovery import DeviceDiscovery
+
+        async def discover_single():
+            discovery = DeviceDiscovery(timeout=3.0)
+            devices = await discovery.discover_and_create_devices()
+            for d in devices:
+                if d.ip_address == name_or_ip:
+                    return d
+            return None
+
+        device = _run_async(discover_single())
+        if device:
+            # Cache it for subsequent calls
+            _device_cache[device.ip_address] = device
+            key = device.name.lower().replace(" ", "-").replace("(", "").replace(")", "")
+            _device_cache[key] = device
+        return device
+
+    return None
+
+
 @register_tool
 def register(app: typer.Typer) -> None:
     """Register control commands."""
@@ -193,7 +226,7 @@ def register(app: typer.Typer) -> None:
         ctx.json_output = json_output
 
         device_name = " ".join(device)
-        dev = _get_device(device_name)
+        dev = _get_or_discover_device(device_name)
         if not dev:
             ctx.error(f"Device not found: {device_name}")
             ctx.info("Run 'lantern control discover' to find devices.")
@@ -243,7 +276,7 @@ def register(app: typer.Typer) -> None:
         ctx.json_output = json_output
 
         device_name = " ".join(device)
-        dev = _get_device(device_name)
+        dev = _get_or_discover_device(device_name)
         if not dev:
             ctx.error(f"Device not found: {device_name}")
             ctx.info("Run 'lantern control discover' to find devices.")
@@ -316,7 +349,7 @@ def register(app: typer.Typer) -> None:
         ctx = get_context()
         ctx.json_output = json_output
 
-        dev = _get_device(device)
+        dev = _get_or_discover_device(device)
         if not dev:
             ctx.error(f"Device not found: {device}")
             ctx.info("Run 'lantern control discover' to find devices.")
@@ -394,7 +427,7 @@ def register(app: typer.Typer) -> None:
         ctx.json_output = json_output
 
         device_name = " ".join(device)
-        dev = _get_device(device_name)
+        dev = _get_or_discover_device(device_name)
         if not dev:
             ctx.error(f"Device not found: {device_name}")
             ctx.info("Run 'lantern control discover' to find devices.")
@@ -454,7 +487,7 @@ def register(app: typer.Typer) -> None:
         ctx = get_context()
         ctx.json_output = json_output
 
-        dev = _get_device(device)
+        dev = _get_or_discover_device(device)
         if not dev:
             ctx.error(f"Device not found: {device}")
             raise typer.Exit(1)
@@ -506,7 +539,7 @@ def register(app: typer.Typer) -> None:
         ctx = get_context()
         ctx.json_output = json_output
 
-        dev = _get_device(device)
+        dev = _get_or_discover_device(device)
         if not dev:
             ctx.error(f"Device not found: {device}")
             raise typer.Exit(1)
