@@ -514,6 +514,24 @@ OUI_DATABASE: dict[str, str] = {
     # Nest
     "18B430": "Nest",
     "64166A": "Nest",
+    # Bose
+    "000C8A": "Bose",
+    "0454F5": "Bose",
+    "08DF1F": "Bose",
+    "2C412F": "Bose",
+    "4C8733": "Bose",
+    "88C6E3": "Bose",
+    "D87FBC": "Bose",
+    # Network Equipment (ISP Routers)
+    "589671": "Wistron",  # Makes equipment for Verizon/ISPs
+    "001D7E": "Cisco-Linksys",
+    "000C41": "Cisco-Linksys",
+    "00904B": "Gemtek",  # Makes equipment for ISPs
+    "F8F5CB": "Wistron",
+    "1C872C": "ASUSTek",
+    "90F652": "TP-Link",
+    # Additional Apple
+    "94F6D6": "Apple",
 }
 
 
